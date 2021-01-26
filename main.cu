@@ -36,6 +36,7 @@
 #include <iostream>
 #include <fstream>
 #include "disparity_method.h"
+#include "configuration.h"
 
 bool directory_exists(const char* dir) {
 	DIR* d = opendir(dir);
@@ -174,11 +175,11 @@ int main(int argc, char *argv[]) {
 
 		// Convert images to grayscale
 		if (h_im0.channels()>1) {
-			cv::cvtColor(h_im0, h_im0, CV_RGB2GRAY);
+			cv::cvtColor(h_im0, h_im0, cv::COLOR_RGB2GRAY);
 		}
 
 		if (h_im1.channels()>1) {
-			cv::cvtColor(h_im1, h_im1, CV_RGB2GRAY);
+			cv::cvtColor(h_im1, h_im1, cv::COLOR_RGB2GRAY);
 		}
 
 		if(h_im0.rows != h_im1.rows || h_im0.cols != h_im1.cols) {

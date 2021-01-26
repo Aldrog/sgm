@@ -15,23 +15,22 @@
 #    You should have received a copy of the GNU General Public License
 #    along with sgm.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 2.4)
-project(sgm)
-find_package( OpenCV REQUIRED )
-find_package( CUDA REQUIRED )
+cmake_minimum_required(VERSION 3.17)
+project(sgm LANGUAGES CUDA)
+set(CMAKE_CUDA_STANDARD 14)
 
-set(
-    CUDA_NVCC_FLAGS
-    ${CUDA_NVCC_FLAGS};
-    -O3 -lineinfo
-    -gencode=arch=compute_30,code=sm_30
-    -gencode=arch=compute_35,code=sm_35
-    -gencode=arch=compute_50,code=sm_50
-    -gencode=arch=compute_52,code=sm_52
-    )
+find_package(OpenCV REQUIRED)
+find_package(CUDAToolkit REQUIRED)
 
-cuda_add_executable(
-    sgm
-    main.cu median_filter.cu hamming_cost.cu disparity_method.cu debug.cu costs.cu)
+if(NOT CMAKE_CUDA_ARCHITECTURES)
+    set(CMAKE_CUDA_ARCHITECTURES "75")
+endif()
 
-target_link_libraries( sgm ${OpenCV_LIBS} )
+add_library(
+    sgm_lib STATIC
+    median_filter.cu hamming_cost.cu disparity_method.cu debug.cu costs.cu)
+target_link_libraries(sgm_lib PUBLIC ${OpenCV_LIBS} CUDA::cudart)
+target_include_directories(sgm_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+
+add_executable(sgm EXCLUDE_FROM_ALL main.cu)
+target_link_libraries(sgm sgm_lib ${OpenCV_LIBS})
